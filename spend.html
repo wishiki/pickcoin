@@ -1,0 +1,95 @@
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+  body {
+    margin-top: 100px;
+  }
+  </style>
+  <script>
+
+  function createAJAX() {
+    if (window.XMLHttpRequest) { // code for IE7+, Firefox, Chrome, Opera, Safari
+      return new XMLHttpRequest();
+    }
+    else { // code for IE6, IE5
+      return new ActiveXObject("Microsoft.XMLHTTP");
+    }
+  }
+
+  function showAllDeviecUUID() {
+    var xml = createAJAX();
+    xml.onreadystatechange=function() {
+      if (xml.readyState==4 && xml.status==200) {
+        var allDeviecUUID = JSON.parse(xml.responseText);
+        var x = document.getElementById("deviceUUID"); //taken out of the for loop below by jan
+        x.innerHTML = ""; //added by jan
+        for(var i in allDeviecUUID) {
+          var option = document.createElement("option");
+          option.text = allDeviecUUID[i].deviceUUID;
+          x.add(option);
+        }
+      }
+    }
+    xml.open("GET", "get-all-deviceUUID.php", true);
+    xml.send();
+  }
+
+  function getSelectUUID() {
+    var x = document.getElementById("deviceUUID").selectedIndex;
+    return document.getElementsByTagName("option")[x].value;
+  }
+
+  function checkHowMany() {
+    var checkhow = createAJAX();
+    checkhow.onreadystatechange=function() {
+      if (checkhow.readyState==4 && checkhow.status==200) {
+        var wallet = JSON.parse(checkhow.responseText);
+        document.getElementById("areyourich").innerHTML = wallet.wallet;
+        document.getElementById("canyouspend").innerHTML = wallet.spendable;
+      }
+    }
+
+    checkhow.open("GET", "check-howmany.php?deviceUUID="+getSelectUUID(), true);
+    checkhow.send();
+  }
+
+  function spendPickcoin(){
+    if (!confirm("sure? " + getSelectUUID())) {
+      return;
+    }
+
+    var xhttp = createAJAX();
+
+    xhttp.onreadystatechange=function() {
+      if (xhttp.readyState==4 && xhttp.status==200) {
+      }
+    }
+    var currentdate = new Date();
+    var datetime = "Last Sync: " + currentdate.getDate() + "/"
+    + (currentdate.getMonth()+1)  + "/"
+    + currentdate.getFullYear() + " @ "
+    + currentdate.getHours() + ":"
+    + currentdate.getMinutes() + ":"
+    + currentdate.getSeconds();
+    var time= currentdate;
+
+    xhttp.open("POST","spend.php", true);
+    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xhttp.send("jikan="+time+"&deviceUUID="+getSelectUUID());
+  }
+
+  </script>
+</head>
+<body>
+  <button onclick="showAllDeviecUUID()">Show All DeviceUUIDs</button>
+  <select id="deviceUUID" onchange="checkHowMany()">
+  </select>
+  <p>Wallet:
+  <span id="areyourich"></span>
+  Spendable:
+  <span id="canyouspend"></span>
+</p>
+  <button onclick="spendPickcoin()">Deduct</button>
+</body>
+</html>

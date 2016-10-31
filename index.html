@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=0.6"> <!-- inisial-scale=1.0だとモバイル環境でGoogleロゴなどが大きく表示されすぎるので0.6にした -->
+  <title>Pickcoin</title>
+  <link rel="icon" href="wallet_icon.svg">
+  <link href='https://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
+  <style>
+  html, body {
+    height: 100%;
+    margin: 0;  padding: 0;
+    font-family: 'Droid Sans', sans-serif;
+  }
+
+  #streetview {
+    float: left;
+    height: 100%;
+    width: 100%;
+  }
+
+  #floating-panel1 {
+    position: absolute;
+    z-index: 6; /* z-index: 5まで入れないとdrop/pick boxがstreetviewnの上に表示されない */
+  }
+
+  #floating-panel2 {
+    position: absolute;
+    z-index: 7; /* z-index: 5まで入れないとdrop/pick boxがstreetviewnの上に表示されない */
+  }
+
+  #floating-panel3 {
+    top:0;
+    right:0;
+    position: absolute;
+    z-index: 5; /* z-index: 5まで入れないとdrop/pick boxがstreetviewnの上に表示されない */
+  }
+
+  #floating-panel4 {
+    bottom: 0;
+    left: 0;
+    position: absolute;
+    z-index: 5
+  }
+
+  .ownModal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.8); /* Black w/ opacity */
+    text-align: center;
+    color: white;
+    margin: auto;
+    font-size: 2em;
+}
+
+.ownModal a:link {
+color:white;
+}
+.ownModal a:visited {
+color:white;
+}
+.ownModal a:hover {
+color:yellow;
+}
+.ownModal a:active {
+color:yellow;
+}
+
+.ownModalPlus {
+  padding-top: 0px;
+}
+
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    padding-top: 50px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0.4);
+  }
+
+  .modal-content { /* こういう上から落ちてくるボックスはmodal boxと呼ぶらしい (wc3 schoolを参照)  */
+    position: relative;
+    background-color: #fefefe;
+    margin: auto;
+    padding: 0;
+    border: 1px solid #888;
+    width: 75%;
+    font-size: 1.6em;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+    -webkit-animation-name: animatetop;
+    -webkit-animation-duration: 0.4s;
+    animation-name: animatetop;
+    animation-duration: 0.4s;
+  }
+
+  input[type="text"] { font-size: 1.0em; }
+
+  optgroup { font-size: 1em; } /* より詳細に文字の大きさを変えるためだけにある */
+
+  input[type="button"] { font-size: 1.5em; }
+
+  select { font-size: 1.0em;}
+
+  #myBtn {
+    width:150px;
+    height:150px;
+    display:inline-block;
+    padding-top:6px;
+    margin-left:auto;
+    margin-right:auto;
+    position:relative;
+    cursor:pointer;
+    border: none;
+    background: #ffcc00;
+    background-image: url(wallet_icon.svg);
+    background-repeat: no-repeat;
+    background-size: cover;
+    border-radius: 18px;
+    box-shadow: inset 0px 1px 0px #ac8a00, 0px 5px 0px 0px #645000;
+  }
+
+  #myBtn:active {
+    top:3px;
+    box-shadow: inset 0px 1px 0px #ac8a00, 0px 2px 0px 0px #645000;
+  }
+
+  #myBtn:before {
+    display:block;
+    position:absolute;
+    padding-top:10px;
+    top:10px;
+  }
+
+  #myBtn:active:before {
+    top: 7px;
+  }
+
+  #lblCoinVal {
+    background-color: green;
+    padding: 4px;
+  }
+
+  #wallet {
+    width:150px;
+    height:30px;
+    display:inline-block;
+    padding-top:6px;
+    margin-top:8px;
+    margin-left:auto;
+    margin-right:auto;
+    position:relative;
+    border: none;
+    background: #ffffff;
+    background-repeat: no-repeat;
+    background-size: cover;
+    border-radius: 18px;
+    box-shadow: inset 0px 1px 0px #403d32, 0px 5px 0px 0px #0a0800;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 25px;
+    font-size: 1.5em;
+  }
+
+  #spend {
+  width: 150px;
+  height: 150px;
+  display: inline-block;
+  position: relative;
+  float:right;
+  background: #ffffff;
+  font-size: 2em;
+  }
+
+  #info {
+    width: 150px;
+    height: 100px;
+    display: inline-block;
+    position: relative;
+    float: left;
+    background: #ffffff;
+    font-size: 2em;
+  }
+
+  @-webkit-keyframes animatetop {
+    from {top: -300px; opacity: 0;}
+    to {top: 0; opacity: 1;}
+  }
+
+  @keyframes animatetop {
+    from {top: -300px; opacity: 0;}
+    to {top: 0; opacity: 1;}
+  }
+
+  @-moz-keyframes animatetop {
+    from {top: -300px; opacity: 0;}
+    to {top: 0; opacity: 1;}
+  }
+
+  @-o-keyframes animatetop {
+    from {top: -300px; opacity: 0;}
+    to {top: 0; opacity: 1;}
+  }
+
+  .close {
+    color: white;
+    float: right;
+    font-size: 2.0em;
+    font-weight: bold;
+  }
+
+  .close1 {
+    color: white;
+    float: right;
+    font-size: 2.5em;
+    font-weight: bold;
+  }
+
+  #close2 {
+    color:white;
+    float:right;
+    font-size: 2.5em;
+    font-weight:bold;
+  }
+
+  .close:hover,
+  .close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .close1:hover,
+  .close1:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  #close2:hover,
+  #close2:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .modal-body {padding: 2px 16px;}
+
+  .modal_drop-header {
+    padding: 2px 16px;
+    background-color: #333333;
+    color: white;
+  }
+
+  .modal_drop-footer {
+    padding: 2px 16px;
+    background-color: #333333;
+    color: white;
+  }
+
+  .modal_pick-header {
+    padding: 2px 16px;
+    background-color: #5cb85c;
+    color: white;
+  }
+
+  .modal_pick-footer {
+    padding: 2px 16px;
+    background-color: #5cb85c;
+    color: white;
+  }
+
+  .initialBtn {
+    background-color: rgba(0,0,0,0);
+    border: 0 none;
+  }
+
+  .w3-btn-floating{-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}
+  .w3-btn-floating{display:inline-block;text-align:center;color:#fff;background-color:#000;position:relative;overflow:hidden;z-index:1;padding:0;border-radius:50%;cursor:pointer;font-size:36px;}
+  .w3-btn-floating{width:60px;height:60px;line-height:60px;}
+  .w3-content{margin:auto;max-width:400px;position:relative;text-align:center;}
+
+  </style>
+  <script src="node-uuid-master/uuid.js"></script>
+  <script>
+  //var uuid = uuid.v4();
+  //console.log(uuid);
+  var panorama;
+  var pickedMarker;
+  var ido;
+  var keido;
+  var markers = [];
+  var xmlhttp; // added by damien
+
+  function getMyUUID() {
+    if (!localStorage.getItem('uuid')) {
+      localStorage.setItem('uuid', uuid.v4());
+    }
+    return localStorage.getItem('uuid');
+  }
+
+  var deviceUUID = getMyUUID();
+  //console.log(deviceUUID);
+
+  function createAJAX() {
+    if (window.XMLHttpRequest) { // code for IE7+, Firefox, Chrome, Opera, Safari
+      return new XMLHttpRequest();
+    }
+    else { // code for IE6, IE5
+      return new ActiveXObject("Microsoft.XMLHTTP");
+    }
+  }
+
+  function createCoin(lat, lng, coinUUID, dropped_by) {
+    var marker = new google.maps.Marker({
+      position: {
+        lat: lat,
+        lng: lng
+      },
+      map: panorama,
+      icon: "0003.gif"
+    });
+    //markers.push(marker); disabled by jan
+    marker.coinUUID = coinUUID;
+    marker.dropped_by = dropped_by;
+
+    //	DELETING FUNCTION WITHIN CREATE COIN FUNCTION
+    google.maps.event.addListener( marker, 'click' , function(event) { //　markers[i]からmarkerに変えた
+      pickedMarker = marker; // added by damien
+      console.log(pickedMarker.coinUUID);
+      if (deviceUUID == pickedMarker.dropped_by) {
+        alert ("you cannot pick up the coins you have dropped!");
+        return;
+      }
+
+      // LIMITING CLICKABILITY
+      /*
+      var LAT = marker.position.lat(); // markerからlatを取り出す
+      var LNG = marker.position.lng(); // markerからlngを取り出す
+      function radians (v) { // mysqlにあるradians JSにfunctionがないから自分で作った
+      return v * Math.PI / 180.0;
+    };
+    // Haversine formula below
+    var coinDistance = ( 6371 * Math.acos( Math.cos( radians(LAT) ) * Math.cos( radians( ido ) ) * Math.cos( radians( keido ) - radians(LNG) ) + Math.sin( radians(LAT) ) * Math.sin( radians( ido ) ) ) );
+    console.log(coinDistance);
+    if (coinDistance >= 0.020) { // なぜかうまくmeterと合っていないので適当なvalueを当てはめた
+    return; // もしifの中がtrueだった場合その場でreturnしif以降がexecuteされないようになっている
+  }
+  */
+
+  modal1.style.display = "block";
+  //following is half of DELETE function
+  xmlhttp = createAJAX();
+  xmlhttp.onreadystatechange = function() {
+    if (xmlhttp.readyState==4 && xmlhttp.status==200) {
+      if (xmlhttp.responseText !== "NO") {
+        playSound();
+        SYNC();
+      }
+      else {
+        alert("Already the coin is taken, bugger off!")
+        return;
+      }
+      var i = markers.indexOf(marker); // これをvar j = confirm("Do you want to pick the Pickcoin?")の上からここに移動させた
+      marker.setMap(null);
+      markers.splice(i, 1);
+    }
+  }
+});
+return marker; //added by jan
+}
+
+function SYNC() { //THIS IS THE SYNC FUNCTION
+
+  xml = createAJAX();
+  xml.onreadystatechange = function() {
+    if (xml.readyState == 4 && xml.status == 200) {
+
+      for (var i = 0; i < markers.length; ++i) {
+        markers[i].updated = false;
+      }
+
+      var myCoins = JSON.parse(xml.responseText);
+      var newMarkers = [];
+
+      for (var i = 0; i < myCoins.coins_nearby.length; ++i) {
+        var eachCoin = myCoins.coins_nearby[i];
+        var existingMarker = markers.find(function(mrkr) { return mrkr.coinUUID == eachCoin.coinUUID; });
+        if (existingMarker) {
+          // we already have this marker, update position
+            existingMarker.dropped_by = eachCoin.dropped_by; //added by jan 20160831
+          existingMarker.updated = true; // <= IMPORTANT
+          newMarkers.push(existingMarker);
+        } else {
+          var newMarker = createCoin(parseFloat(eachCoin.lat), parseFloat(eachCoin.lng), eachCoin.coinUUID, eachCoin.dropped_by); // NOTE: do not add the marker to the markers array in createCoinMarker! // NOTE: do not add the marker to the markers array in createCoinMarker!
+          newMarkers.push(newMarker);
+
+          newMarker.updated = true;
+        }
+      }
+
+      for (var i = 0; i < markers.length; ++i) {
+        if (!markers[i].updated) {
+          markers[i].setMap(null);
+        }
+      }
+
+      markers = newMarkers;
+
+      //instead of removing all the coin markers, only delete the ones not in near by area. and
+      //update the locations of the existing coin markers
+      //add the ones that are not existing
+
+      /*
+      var myCoins = JSON.parse(xml.responseText);
+
+      for (var k in myCoins.coins_nearby) {
+      var coinRows = myCoins.coins_nearby[k];
+      createCoin(parseFloat(coinRows.lat), parseFloat(coinRows.lng), coinRows.coinUUID);
+    }
+    console.log(markers);
+
+    */
+    var walletValue = myCoins.wallet[0].wallet;
+
+    document.getElementById('wallet').innerHTML = "&#8364;"+walletValue;
+    //console.log(walletValue);
+  }
+
+}
+xml.open("GET", "sync-testing_3.php?device="+deviceUUID+"&LAT="+ido+"&LNG="+keido, true);
+xml.send();
+}
+
+function initLocationProcedure() {
+
+  panorama = new google.maps.StreetViewPanorama(
+    document.getElementById('streetview'),
+    {
+      position: {
+        lat: ido,
+        lng: keido
+      },
+      pov: {
+        heading: 90,
+        pitch: 0
+      },
+      zoom: 1,
+      disableDefaultUI: true//,
+      //motionTracking: false //to disable motiontracking, should be removed later
+    });
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(watchCurrentPosition, locError, {
+        enableHighAccuracy : true,
+        timeout : 60000,
+        maximumAge : 0
+      });
+    } else {
+      alert("Your phone does not support the Geolocation API");
+    }
+  }
+
+  function locError(error) {
+    // the current position could not be located
+    alert("Please turn on geolocation for your browser!");
+  }
+
+  function watchCurrentPosition() {
+    var positionTimer = navigator.geolocation.watchPosition(function(position) {
+      //document.getElementById('latitude').innerHTML = position.coords.latitude; //just for showing
+      //document.getElementById('longitude').innerHTML = position.coords.longitude; //just for showing
+      //以下小数点7ケタ以降をカット
+      function floatFormat( number, n ) {
+        var _pow = Math.pow( 10 , n ) ;
+        return Math.round( number * _pow ) / _pow ;
+      }
+      ido = floatFormat( position.coords.latitude, 7 ) ;
+      keido = floatFormat( position.coords.longitude, 7 ) ;
+      if (!panorama.getMotionTracking()){
+        panorama.setPosition(new google.maps.LatLng(ido, keido)); //newly added google streetview javascript api 17th august 2016, getMotionTracking
+      }
+      //panorama.setPosition(new google.maps.LatLng(ido, keido)); //setPositionファンクションで今いる緯度経度からgoogle streetviewを生成。
+      //HERE IS THE CALL BACK
+      SYNC();
+    });
+
+  }
+
+  function pickPickcoin () { // code below moved from delete function // triggered when the "pick" button is clicked
+  var coinUUID = pickedMarker.coinUUID;
+  var currentdate = new Date();
+  var datetime = "Last Sync: " + currentdate.getDate() + "/"
+  + (currentdate.getMonth()+1)  + "/"
+  + currentdate.getFullYear() + " @ "
+  + currentdate.getHours() + ":"
+  + currentdate.getMinutes() + ":"
+  + currentdate.getSeconds();
+  var time = currentdate;
+  xmlhttp.open("POST","pick-test1.php", true);
+  xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+  xmlhttp.send("device="+deviceUUID+"&jikan="+time+"&coinUUID="+coinUUID);
+  modal1.style.display = "none";
+}
+
+function dropPickcoin() {
+
+  var xhttp = createAJAX();
+
+  xhttp.onreadystatechange=function() {
+    if (xhttp.readyState==4 && xhttp.status==200) {
+      if (xhttp.responseText !== "NO") {
+        playSound();
+        SYNC();
+      }
+      else {
+        alert("You don't have coins, bugger off!")
+        return;
+      }
+    }
+  }
+  var currentdate = new Date();
+  var datetime = "Last Sync: " + currentdate.getDate() + "/"
+  + (currentdate.getMonth()+1)  + "/"
+  + currentdate.getFullYear() + " @ "
+  + currentdate.getHours() + ":"
+  + currentdate.getMinutes() + ":"
+  + currentdate.getSeconds();
+  var time= currentdate;
+
+  xhttp.open("POST","drop-test1.php", true);
+  xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+  xhttp.send("la="+ido+"&ln="+keido+"&t="+time+"&device="+deviceUUID);
+  modal.style.display = "none";
+}
+
+/*function pickSound() {
+var audio = document.getElementById("audio");
+audio.play();
+}*/
+
+function playSound() {
+  /*el.mp3 = new Audio(soundfile);
+  el.mp3.play();*/
+  document.getElementById("theSound").play(); //modified by Jan
+}
+
+function spend() {
+  alert(deviceUUID);
+  console.log(deviecUUID);
+}
+
+function RemoveItself(elem) {
+      elem.parentNode.removeChild(elem);
+  }
+
+  function initialScreen() {
+    iniModal.style.display = "block";
+  }
+
+  function informationScreen() {
+    infoModal.style.display = "block";
+  }
+
+</script>
+<script async src="https://maps.googleapis.com/maps/api/js?v=3.exp"></script>
+</head>
+<body onload="initialScreen()">
+  <!--<input type="button" value = "START" class="subfilter" onclick="RemoveItself(this);initLocationProcedure();playSound();" id="theSound" />--><audio src="inaricoin.wav" id="theSound"></audio>
+  <!--<button onclick="initLocationProcedure();playSound();">START</button><audio src="inaricoin.wav" id="theSound"></audio> <!--added by Jan-->
+  <div id="streetview"></div>
+  <div id="floating-panel1"> <!--This makes the modal boxes appear above street view-->
+    <button id="myBtn"></button><br>
+    <div id="wallet"></div><br>
+    <div id="modalDrop" class="modal">
+      <div class="modal-content">
+        <div class="modal_drop-header">
+          <span class="close">&times;</span>
+          <center><h2>Drop Pickcoin</h2></center>
+        </div>
+        <div class="modal-body">
+          <p>Do you want to drop a Pickcoin (&#8364;0.10)?</p>
+        </div>
+        <div class="modal_drop-footer">
+          <center><input type="button" value="DROP!" onclick="dropPickcoin()" /></center>
+        </div>
+      </div>
+    </div>
+
+    <!-- <button id="myBtn1">Pick up Pickcoin</button> -->
+
+    <div id="modalPick" class="modal">
+      <div class="modal-content">
+        <div class="modal_pick-header">
+          <span class="close1">&times;</span>
+          <center><h2>Pick Up Pickcoin</h2></center>
+        </div>
+        <div class="modal-body">
+          <p>Do you want to pick up &#8364;0.10?</p>
+        </div>
+        <div class="modal_pick-footer">
+          <center><input type="button" value="PICK!" onclick="pickPickcoin()" /></center>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div id="floating-panel2">
+    <div id="initialModal" class="ownModal">
+  "Imagine money is randomly lying everywhere on the street
+  and people pick it up and use it as they need. If you don't
+  need that much, drop it casually, just like stones."<br>
+  <button class="initialBtn" id="iniBtn"><img src="pickcoin_logo4.png" width="60%" height="auto"/></button><br>
+  <span style="color:#ccc;">TOUCH PICKCOIN TO START</span>
+  </div>
+  <div id="informationModal" class="ownModal ownModalPlus">
+    <span id="close2">&times;</span>
+    <h4 class="w3-content">How to Pickcoin</h4>
+
+    <div class="w3-content" style="max-width:400px;position:relative">
+
+    <img class="mySlides" src="picking1.png" width="400px" height="auto">
+    <img class="mySlides" src="text4240.png" width="400px" height="auto">
+    <img class="mySlides" src="text21634.png" width="400px" height="auto">
+
+    <a class="w3-btn-floating" style="position:absolute;top:45%;left:0" onclick="plusDivs(-1)"><b><</b></a>
+    <a class="w3-btn-floating" style="position:absolute;top:45%;right:0" onclick="plusDivs(1)"><b>></b></a>
+
+    </div>
+    <a href="https://www.facebook.com/events/291263947912703/">facebook event page</a><br>
+    <button id="closeBtn">CLOSE</button>
+  </div>
+  </div>
+  <div id="floating-panel3">
+    <button id="spend" onclick="spend()">Spend</button>
+  </div>
+  <div id="floating-panel4">
+    <button id="info" onclick="informationScreen()">info</button>
+  </div>
+  <script>
+  var iniModal = document.getElementById('initialModal');
+
+  var cloBtn = document.getElementById('closeBtn');
+
+  var infoModal = document.getElementById('informationModal');
+  // Get the modal
+  var modal = document.getElementById('modalDrop');
+  modal.index = 1;
+  // Get the button that opens the modal
+  var btn = document.getElementById("myBtn");
+
+  var inibtn = document.getElementById("iniBtn")
+
+  // Get the <span> element that closes the modal
+  var span = document.getElementsByClassName("close")[0];
+
+  var closeInfo = document.getElementById('close2');
+
+  closeInfo.onclick = function() {
+    infoModal.style.display = "none";
+  }
+
+  inibtn.onclick = function() {
+    iniModal.style.display = "none";
+    initLocationProcedure();
+    playSound();
+  }
+
+  cloBtn.onclick = function() {
+    infoModal.style.display = "none";
+  }
+
+  // When the user clicks anywhere outside of the modal, close it
+  window.onclick = function(event) {
+      if (event.target == modal) {
+          iniModal.style.display = "none";
+          initLocationProcedure();
+          playSound();
+      }
+  }
+
+  // When the user clicks the button, open the modal
+  btn.onclick = function() {
+    modal.style.display = "block";
+  }
+
+  // When the user clicks on <span> (x), close the modal
+  span.onclick = function() {
+    modal.style.display = "none";
+  }
+
+  // When the user clicks anywhere outside of the modal, close it
+  // windowが二重呼び出しにならないように変えた
+  window.onclick = function(event) {
+    if (event.target == modal || event.target == modal1) {
+      modal.style.display = "none";
+      modal1.style.display = "none";
+    }
+  }
+
+  var modal1 = document.getElementById('modalPick');
+
+  var span1 = document.getElementsByClassName("close1")[0];
+
+  span1.onclick = function() {
+    modal1.style.display = "none";
+  }
+
+  var slideIndex = 1;
+  showDivs(slideIndex);
+
+  function plusDivs(n) {
+    showDivs(slideIndex += n);
+  }
+
+  function showDivs(n) {
+    var i;
+    var x = document.getElementsByClassName("mySlides");
+    if (n > x.length) {slideIndex = 1}
+    if (n < 1) {slideIndex = x.length}
+    for (i = 0; i < x.length; i++) {
+       x[i].style.display = "none";
+    }
+    x[slideIndex-1].style.display = "block";
+  }
+
+  </script>
+</body>
+</html>

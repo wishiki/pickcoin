@@ -1,0 +1,89 @@
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+  body {
+    margin-top: 100px;
+  }
+  </style>
+<script src="node-uuid-master/uuid.js"></script>
+<script>
+
+var coinUUID;
+
+coinUUID = ('uuid', uuid.v4());
+
+function randomCoinUUID() {
+  coinUUID = ('uuid', uuid.v4());
+  return coinUUID;
+}
+
+function createAJAX() {
+  if (window.XMLHttpRequest) { // code for IE7+, Firefox, Chrome, Opera, Safari
+    return new XMLHttpRequest();
+  }
+  else { // code for IE6, IE5
+    return new ActiveXObject("Microsoft.XMLHTTP");
+  }
+}
+
+function generatePickcoin(){
+if (!confirm("sure? " + getSelectUUID())) {
+  return;
+}
+
+
+var xhttp = createAJAX();
+
+xhttp.onreadystatechange=function() {
+  if (xhttp.readyState==4 && xhttp.status==200) {
+}
+}
+var currentdate = new Date();
+var datetime = "Last Sync: " + currentdate.getDate() + "/"
++ (currentdate.getMonth()+1)  + "/"
++ currentdate.getFullYear() + " @ "
++ currentdate.getHours() + ":"
++ currentdate.getMinutes() + ":"
++ currentdate.getSeconds();
+var time= currentdate;
+
+
+
+xhttp.open("POST","generate-in-wallet.php", true);
+xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+xhttp.send("jikan="+time+"&coinUUID="+coinUUID+"&deviceUUID="+getSelectUUID());
+}
+
+function showAllDeviecUUID() {
+  var xml = createAJAX();
+  xml.onreadystatechange=function() {
+    if (xml.readyState==4 && xml.status==200) {
+      var allDeviecUUID = JSON.parse(xml.responseText);
+      var x = document.getElementById("deviceUUID");
+      x.innerHTML = ""; //added by jan
+      for(var i in allDeviecUUID) {
+    var option = document.createElement("option");
+    option.text = allDeviecUUID[i].deviceUUID;
+    x.add(option);
+      }
+  }
+  }
+  xml.open("GET", "get-all-deviceUUID.php", true);
+  xml.send();
+}
+
+function getSelectUUID() {
+  var x = document.getElementById("deviceUUID").selectedIndex;
+  return document.getElementsByTagName("option")[x].value;
+}
+
+</script>
+</head>
+<body>
+  <button onclick="showAllDeviecUUID()">Show All DeviceUUIDs</button>
+  <select id="deviceUUID" onchange="getSelectUUID()">
+</select>
+  <button onclick="generatePickcoin();randomCoinUUID();">Generate</button>
+</body>
+</html>
