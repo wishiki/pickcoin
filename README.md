@@ -2,6 +2,9 @@
 
 Pickcoin is a locative indirect augmented reality web app.
 
+* Overview
+* The app
+
 ### Overview
 -------------------------------
 During the summer of 2016 Japanese artist Inari Wishiki collaborated with a Rotterdam-based ice cream parlour De IJssalon Witte de Withstraat to make the impossible happen.
