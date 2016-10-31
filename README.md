@@ -13,5 +13,8 @@ At the till coins were alse purchasable at a staggeringly low price of 10 cent f
 
 ### The web app
 ***
-The web app was a graphic overlay onto Google Street View using real
+The web app was a Google Street View with coin graphics superimposed onto it. The streetview shifted itself according to the geolocation of your mobile device and as you move around nearby coins appeared on your screen. You could interact with coins  by picking up or dropping.
+
+As soon as you opened up the web app on a browser, a device UUID was automatically generated. This functioned as your wallet and the amount of money you picked up stayed even if you closed the browser once and reopened the web app.
+
 [![IMAGE ALT TEXT HERE](https://irational.org/inari/pickcoin/alexscreenshot2.png)](https://www.youtube.com/watch?v=67Qd91LgiZw)
