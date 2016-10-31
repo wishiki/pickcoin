@@ -18,3 +18,11 @@ The web app was a Google Street View with coin graphics superimposed onto it. Th
 As soon as you opened up the web app on a browser, a device UUID was automatically generated. This functioned as your wallet and the amount of coins you picked up stayed even if you closed the browser once and reopened the web app.
 
 [![IMAGE ALT TEXT HERE](https://irational.org/inari/pickcoin/alexscreenshot2.png)](https://www.youtube.com/watch?v=67Qd91LgiZw)
+
+### Installation
+***
+1. Prepare a server
+2. Make sure the latest versions of PHP and MySQL are installed on the server
+3. Create a table following sql_create_icecoin.txt
+4. Replace all the (*x6) parts with appropriate names/password
+5. Move all the files to a directory on the server
