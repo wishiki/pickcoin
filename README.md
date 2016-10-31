@@ -1,6 +1,6 @@
 # pickcoin
 
-> Pickcoin is a locative indirect augmented reality web app.
+Pickcoin is a locative indirect augmented reality web app.
 
 ### Overview
 ***
@@ -11,8 +11,7 @@ Inari together with the shop distributed 750 virtual coins all over the streets,
 At the till coins were alse purchasable at a staggeringly low price of 10 cent for 10 coins, with which you could drop back into the system. This meant a temporary inifinite supply of free ice cream.
 
 
-### The app
----
-
-
+### The web app
+***
+The web app was a graphic overlay onto Google Street View using real
 [![IMAGE ALT TEXT HERE](https://irational.org/inari/pickcoin/alexscreenshot2.png)](https://www.youtube.com/watch?v=67Qd91LgiZw)
